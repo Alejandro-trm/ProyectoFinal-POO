@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <limits>
+#include <stdexcept>
 
 #include <iostream>
 
@@ -16,16 +17,21 @@ void Juego::iniciarJuego() {
 
     if (opcion == 's' || opcion == 'S') {
         // Validar cantidad de jugadores
+       // ...dentro de Juego::iniciarJuego()
+
         int cantidad = 0;
         while (true) {
-            std::cout << "¿Cuántos jugadores van a participar? (1-7): ";
-            std::cin >> cantidad;
-            if (std::cin.fail() || cantidad < 1 || cantidad > 7) {
-                std::cout << "Por favor, ingresa un número válido entre 1 y 7.\n";
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            } else {
-                break;
+            try {
+                std::cout << "¿Cuántos jugadores van a participar? (1-7): ";
+                std::cin >> cantidad;
+                if (std::cin.fail() || cantidad < 1 || cantidad > 7) {
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    throw std::invalid_argument("Entrada inválida: Debes ingresar un número entre 1 y 7.");
+                }
+                break; // Entrada válida, sal del bucle
+            } catch (const std::invalid_argument& e) {
+                std::cout << "Error: " << e.what() << std::endl;
             }
         }
         for (int i = 0; i < cantidad; ++i) {
@@ -35,13 +41,24 @@ void Juego::iniciarJuego() {
             jugadores.push_back(Jugador(nombre, 1000)); // saldo inicial
         }
 
-        // Pedir la apuesta a cada jugador
-        for (auto& jugador : jugadores) {
-            double monto;
-            std::cout << jugador.getNombre() << ", ingresa tu apuesta: ";
-            std::cin >> monto;
-            jugador.apostar(monto);
+       for (auto& jugador : jugadores) { // Pedir apuestas
+        double monto;
+        while (true) {
+            try {
+                std::cout << jugador.getNombre() << ", ingresa tu apuesta: ";
+                std::cin >> monto;
+                if (std::cin.fail() || monto <= 0 || monto > jugador.getSaldo()) {
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    throw std::invalid_argument("Apuesta inválida. Debes ingresar un monto positivo y no mayor a tu saldo.");
+                }
+                jugador.apostar(monto);
+                break; // Apuesta válida, sal del bucle
+            } catch (const std::invalid_argument& e) {
+                std::cout << "Error: " << e.what() << std::endl;
+            }
         }
+}
         repartirCartasIniciales();
         jugarRonda();
         determinarGanador();
@@ -53,35 +70,51 @@ void Juego::iniciarJuego() {
 }
 
 void Juego::repartirCartasIniciales() {
-    // Reparte dos cartas a cada jugador
-    crupier.repartirInicial(jugadores, mazo);
+   try {
+        // Reparte dos cartas a cada jugador
+        crupier.repartirInicial(jugadores, mazo);
 
-    // Reparte dos cartas al crupier (a sí mismo)
-    crupier.getMano().agregarCarta(mazo.repartirCarta());
-    crupier.getMano().agregarCarta(mazo.repartirCarta());
+        // Reparte dos cartas al crupier (a sí mismo)
+        crupier.getMano().agregarCarta(mazo.repartirCarta());
+        crupier.getMano().agregarCarta(mazo.repartirCarta());
 
-    // Muestra la mano inicial de cada jugador
-    for (auto& jugador : jugadores) {
-        std::cout << jugador.getNombre() << " tiene:\n";
-        jugador.mostrarMano(false);
-        std::cout << "Puntaje: " << jugador.obtenerPuntaje() << "\n\n";
+        // Muestra la mano inicial de cada jugador
+        for (auto& jugador : jugadores) {
+            std::cout << "\n==============================\n";
+            std::cout << "Jugador: " << jugador.getNombre() << "\n";
+            std::cout << "------------------------------\n";
+            jugador.mostrarMano(false);
+            std::cout << "Puntaje: " << jugador.obtenerPuntaje() << "\n";
+            std::cout << "==============================\n";
+        }
+        std::cout << "\n==============================\n";
+        std::cout << "Crupier muestra:\n";
+        crupier.mostrarMano(true); // true = mostrar solo una carta
+        std::cout << "==============================\n";
+
+    } catch (const std::exception& e) {
+        std::cerr << "Error al repartir cartas iniciales: " << e.what() << std::endl;
     }
-
-    // Muestra la mano parcial del crupier (solo una carta visible)
-    std::cout << "Crupier muestra:\n";
-    crupier.mostrarMano(true); // true = mostrar solo una carta
 }
 
 void Juego::jugarRonda() {
     // Turno de cada jugador
     for (auto& jugador : jugadores) {
-        std::cout << jugador.getNombre() << ", tu turno:\n";
-        jugador.mostrarMano(false);
+    std::cout << "\n==============================\n";
+    std::cout << "Turno de " << jugador.getNombre() << "\n";
+    std::cout << "------------------------------\n";
+    jugador.mostrarMano(false);
+
         while (!jugador.getMano().determinarBust() && jugador.quiereOtraCarta()) {
-            jugador.pedirCarta(mazo);
-            std::cout << "Tu mano ahora:\n";
-            jugador.mostrarMano(false);
-            std::cout << "Puntaje: " << jugador.obtenerPuntaje() << "\n";
+           try {
+                jugador.pedirCarta(mazo);
+                std::cout << "Tu mano ahora:\n";
+                jugador.mostrarMano(false);
+                std::cout << "Puntaje: " << jugador.obtenerPuntaje() << "\n";
+            } catch (const std::exception& e) {
+                    std::cout << "Error al pedir carta: " << e.what() << std::endl;
+                    break;
+                }
         }
         if (jugador.getMano().determinarBust()) {
             std::cout << "¡Te has pasado de 21!\n";
@@ -90,7 +123,9 @@ void Juego::jugarRonda() {
     }
 
     // Turno del crupier
+    std::cout << "\n==============================\n";
     std::cout << "Turno del crupier:\n";
+    std::cout << "------------------------------\n";
     crupier.mostrarMano(false);
     while (crupier.obtenerPuntaje() < 17) {
         std::cout << "El crupier pide carta...\n";
@@ -109,10 +144,11 @@ void Juego::determinarGanador() {
     bool crupierBust = crupier.getMano().determinarBust();
 
     for (auto& jugador : jugadores) {
+        std::cout << "\n------------------------------\n";
+        std::cout << "Resultado para " << jugador.getNombre() << ": ";
+
         int puntajeJugador = jugador.obtenerPuntaje();
         bool jugadorBust = jugador.getMano().determinarBust();
-
-        std::cout << jugador.getNombre() << ": ";
 
         if (jugadorBust) {
             std::cout << "Te has pasado de 21. Pierdes.\n";
@@ -133,6 +169,7 @@ void Juego::resolverPagos() {
     bool crupierBust = crupier.getMano().determinarBust();
 
     for (auto& jugador : jugadores) {
+        std::cout << "\n------------------------------\n";
         int puntajeJugador = jugador.obtenerPuntaje();
         bool jugadorBust = jugador.getMano().determinarBust();
 
@@ -181,9 +218,21 @@ void Juego::reiniciarJuego(){
     // Pedir nuevas apuestas
     for (auto& jugador : jugadores) {
         double monto;
-        std::cout << jugador.getNombre() << ", ingresa tu nueva apuesta: ";
-        std::cin >> monto;
-        jugador.apostar(monto);
+        while (true) {
+            try {
+                std::cout << jugador.getNombre() << ", ingresa tu nueva apuesta: ";
+                std::cin >> monto;
+                if (std::cin.fail() || monto <= 0 || monto > jugador.getSaldo()) {
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    throw std::invalid_argument("Apuesta inválida. Debes ingresar un monto positivo y no mayor a tu saldo.");
+                }
+                jugador.apostar(monto);
+                break;
+            } catch (const std::invalid_argument& e) {
+                std::cout << "Error: " << e.what() << std::endl;
+            }
+        }
     }
 
     repartirCartasIniciales();

@@ -15,7 +15,11 @@ using namespace std;
 
 int main() {
     std::cout << "EL JUEGO DE BLACKJACK" << std::endl;
-    Juego juego;
-    juego.iniciarJuego();
+    try {
+        Juego juego;
+        juego.iniciarJuego();
+    } catch (const std::exception& e) {
+        std::cerr << "Error: inesperado: " << e.what() << std::endl;
+    }
     return 0;
 }
