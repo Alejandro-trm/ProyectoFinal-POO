@@ -24,6 +24,7 @@ private:
     double apuesta;
 
 public:
+    Jugador(const std::string& nombre, double saldoInicial = 1000); //Constructor
     void pedirCarta(Mazo& m);
     bool quiereOtraCarta();
     bool quiereNuevoJuego();
@@ -32,6 +33,7 @@ public:
     double getApuesta();
     void cobrar(double monto);
     void devolverApuesta();
+    void reiniciarApuesta();
 };
 
 #endif

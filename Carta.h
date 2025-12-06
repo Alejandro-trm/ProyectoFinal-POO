@@ -24,8 +24,8 @@ private:
   std::string nombre;
   
 public:
-  int getValor();
-  std::string getNombre();
+  int getValor() const;
+  std::string getNombre() const;
   void setValor(int v);
   void setNombre(std::string n);
 

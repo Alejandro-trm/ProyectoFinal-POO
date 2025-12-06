@@ -23,6 +23,9 @@
 
 class Crupier : public Persona{
 public:
+
+    Crupier(const std::string& nombre = "Crupier");
+
     void repartirInicial(std::vector<Jugador>& jugadores, Mazo& m);
     void jugarTurno(Mazo& m);
     int obtenerPuntaje();

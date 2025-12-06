@@ -27,7 +27,7 @@ public:
     void agregarCarta(Carta c);
     int calcularValor();
     int contarCartas();
-    void mostrarMano();
+    void mostrarMano(bool parcial);
     bool tieneBlackjack();
     bool determinarBust();
 };

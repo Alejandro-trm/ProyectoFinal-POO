@@ -1,12 +1,12 @@
 #include "Carta.h"
-
 #include <iostream>
 
-int Carta::getValor(){
+
+int Carta::getValor() const{
     return valor;
 }
 
-std::string Carta::getNombre(){
+std::string Carta::getNombre() const{
     return nombre;
 }
 

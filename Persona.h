@@ -25,9 +25,14 @@ protected:
     Mano mano;
 
 public:
-    void mostrarMano();
+    Persona(const std::string& nombre);
+
+    void mostrarMano(bool parcial);
     int obtenerPuntaje();
     void nuevaMano();
+
+    std::string getNombre() const;
+    Mano& getMano();
 };
 
 #endif

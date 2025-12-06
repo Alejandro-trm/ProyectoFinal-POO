@@ -1,5 +1,5 @@
 #include "Mano.h"
-
+#include "Carta.h"
 #include <iostream>
 
 void Mano::agregarCarta(Carta c){
@@ -32,11 +32,25 @@ int Mano::contarCartas(){
     return cartas.size();
 }
 
-void Mano::mostrarMano(){
-    for (Carta& c : cartas) {
-        std::cout << c.getNombre() << c.getValor() << "  ";
+void Mano::mostrarMano(bool parcial) {
+    auto mostrarCarta = [](const Carta& c) {
+        std::string nombre = c.getNombre();
+        if (nombre == "A" || nombre == "J" || nombre == "Q" || nombre == "K") {
+             std::cout << nombre << " (" << c.getValor() << ")  ";
+        } else {
+            std::cout << c.getValor() << "  ";
+        }
+    };
+
+    if (parcial && !cartas.empty()) {
+        mostrarCarta(cartas[0]);
+        std::cout << "[Carta oculta]" << std::endl;
+    } else {
+        for (Carta& c : cartas) {
+            mostrarCarta(c);
+        }
+        std::cout << std::endl;
     }
-    std::cout << std::endl;
 }
 
 bool Mano::tieneBlackjack(){

@@ -8,26 +8,14 @@
                     Alejandro Trujillo  2516762     alejandro.melendez@correounivalle.edu.co
 */
 
-#include "Carta.h"
-#include "Crupier.h"
 #include "Juego.h"
-#include "Jugador.h"
-#include "Mano.h"
-#include "Mazo.h"
-#include "Persona.h"
-
 #include <iostream>
+
 using namespace std;
 
-Crupier cr;
-Juego j;
-Jugador jugador;
-Mano m;
-Mazo mazo;
-Persona p;
-
-int main(){
-    std::cout << "EL  JUEGO  DE BLACKJACK" << std::endl;
-    Carta c = mazo.repartirCarta();
-
+int main() {
+    std::cout << "EL JUEGO DE BLACKJACK" << std::endl;
+    Juego juego;
+    juego.iniciarJuego();
+    return 0;
 }
