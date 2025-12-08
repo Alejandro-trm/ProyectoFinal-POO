@@ -5,10 +5,6 @@
 Jugador::Jugador(const std::string& nombre, double saldoInicial)
     : Persona(nombre), saldo(saldoInicial), apuesta(0) {}
 
-void Jugador::pedirCarta(Mazo& m) {
-    getMano().agregarCarta(m.repartirCarta());
-}
-
 bool Jugador::quiereOtraCarta() {
     char opcion;
     std::cout << "¿Deseas otra carta? (s/n): ";
@@ -18,20 +14,30 @@ bool Jugador::quiereOtraCarta() {
 
 bool Jugador::quiereNuevoJuego() {
     char opcion;
-    std::cout << "¿Deseas iniciar un nuevo juego? (s/n): ";
+    std::cout << nombre << ", ¿Deseas iniciar un nuevo juego? (s/n): ";
     std::cin >> opcion;
     return (opcion == 's' || opcion == 'S');
 }
 
 void Jugador::apostar(double monto) {
-    while (monto > saldo || monto <= 0 || std::cin.fail()) {
-        std::cout << "Apuesta inválida. Tu saldo es $" << saldo << ". Ingresa una apuesta válida: ";
+    try {
+        if (monto <= 0)
+            throw std::invalid_argument("La apuesta debe ser mayor a 0.");
+
+        if (monto > saldo)
+            throw std::runtime_error("Saldo insuficiente para apostar esa cantidad.");
+
+        if (std::cin.fail())
+            throw std::runtime_error("Entrada inválida.");
+
+        apuesta = monto;
+        saldo -= monto;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Error en la apuesta: " << e.what() << "\n";
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cin >> monto;
     }
-    apuesta = monto;
-    saldo -= monto;
 }
 
 double Jugador::getSaldo() {

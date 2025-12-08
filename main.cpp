@@ -14,7 +14,7 @@
 using namespace std;
 
 int main() {
-    std::cout << "EL JUEGO DE BLACKJACK" << std::endl;
+    std::cout << "\nEL JUEGO DE BLACKJACK" << std::endl;
     try {
         Juego juego;
         juego.iniciarJuego();

@@ -4,7 +4,6 @@
     Responsabilidades:
         - Gestionar el mazo de cartas y la distribución de cartas a los jugadores.
         - Proveer métodos para mostrar una mano de cartas.
-        - Controlar los turnos del juego y revisar el puntaje
         - Proveer métodos para calcular valores y determinar si un jugador tiene blackjack.
 
     Colaboradores:
@@ -17,6 +16,7 @@
 #define CRUPIER_H
 
 #include <vector>
+#include <string>
 #include "Mazo.h"
 #include "Jugador.h"
 #include "Persona.h"
@@ -27,7 +27,6 @@ public:
     Crupier(const std::string& nombre = "Crupier");
 
     void repartirInicial(std::vector<Jugador>& jugadores, Mazo& m);
-    void jugarTurno(Mazo& m);
     int obtenerPuntaje();
     void mostrarMano(bool parcial);
     void mostrarParcial();

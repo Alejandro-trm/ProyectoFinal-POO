@@ -25,7 +25,7 @@ private:
 public:
     Mazo();
     Carta repartirCarta();
-    int cartasRestantes();
+    int cartasRestantes() const;
 };
 
 #endif

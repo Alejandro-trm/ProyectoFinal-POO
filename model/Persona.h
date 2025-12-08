@@ -4,7 +4,6 @@
     Responsabilidades:
         - Representar a una persona en el juego.
         - Proveer métodos para gestionar la mano de cartas del jugador.
-        - Proveer métodos para gestionar las apuestas del jugador.
         
     Colaboradores:
         - Colabora con las clases `Mano`, `Jugador` y `Crupier`
@@ -18,6 +17,7 @@
 
 #include <string>
 #include "Mano.h"
+#include "Mazo.h"
 
 class Persona{
 protected:
@@ -27,9 +27,10 @@ protected:
 public:
     Persona(const std::string& nombre);
 
-    void mostrarMano(bool parcial);
+    void mostrarMano();
     int obtenerPuntaje();
     void nuevaMano();
+    void pedirCarta(Mazo& mazo);
 
     std::string getNombre() const;
     Mano& getMano();

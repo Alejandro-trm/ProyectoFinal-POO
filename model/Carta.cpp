@@ -1,5 +1,4 @@
 #include "Carta.h"
-#include <iostream>
 
 
 int Carta::getValor() const{

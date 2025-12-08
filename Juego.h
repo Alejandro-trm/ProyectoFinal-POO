@@ -18,9 +18,9 @@
 #define JUEGO_H
 
 #include <vector>
-#include "Mazo.h"
-#include "Crupier.h"
-#include "Jugador.h"
+#include "model/Mazo.h"
+#include "model/Crupier.h"
+#include "model/Jugador.h"
 
 class Juego{
 private:
@@ -31,10 +31,11 @@ private:
 public:
     void iniciarJuego();
     void repartirCartasIniciales();
-    void jugarRonda();
-    void determinarGanador();
-    void resolverPagos();
-    void reiniciarJuego();
+    void turnoJugadores();
+    void turnoCrupier();
+    void evaluarResultados();
+    void resolverPagos(Jugador& jugador);
+    bool continuarJuego();
 };
 
 #endif

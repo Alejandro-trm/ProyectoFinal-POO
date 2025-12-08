@@ -1,31 +1,38 @@
 #include "Mano.h"
 #include "Carta.h"
 #include <iostream>
+#include <stdexcept>
 
 void Mano::agregarCarta(Carta c){
     cartas.push_back(c);
 }
 
 int Mano::calcularValor(){
-    int total = 0;
-    int ases = 0;
+    try {
+        if (cartas.empty())
+            throw std::runtime_error("No se puede calcular el valor de una mano vacía.");
 
-    for (Carta& c : cartas) {
-        int valor = c.getValor();
+        int total = 0;
+        int ases = 0;
 
-        if (valor == 11) {
-            ases++;
+        for (const Carta& c : cartas) {
+            int valor = c.getValor();
+
+            if (valor == 11) ases++;
+            total += valor;
         }
 
-        total += valor;
-    }
+        while (total > 21 && ases > 0) {
+            total -= 10;
+            ases--;
+        }
 
-    while (total > 21 && ases > 0) {
-        total -= 10;
-        ases--;
+        return total;
     }
-
-    return total;
+    catch (const std::exception& e) {
+        std::cout << "Error: " << e.what() << "\n";
+        return 0;
+    }
 }
 
 int Mano::contarCartas(){
