@@ -8,7 +8,7 @@
                     Alejandro Trujillo  2516762     alejandro.melendez@correounivalle.edu.co
 */
 
-#include "Juego.h"
+#include "controller/Juego.h"
 #include <iostream>
 
 using namespace std;

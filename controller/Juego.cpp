@@ -2,17 +2,18 @@
 #include <iostream>
 #include <limits>
 #include <stdexcept>
+#include <sstream>
+#include <iomanip>
 
 void Juego::iniciarJuego() {
-    std::cout << "¡Es momento de apostar!\n";
+    vista.mostrarLinea("\n¡Es momento de apostar!\n");
 
         // Preguntar la cantidad de jugadores
         int cantidad = 0;
         while (true) {
             try {
-                std::cout << "\n¿Cuántos jugadores van a participar? (1-7): ";
-                std::cin >> cantidad;
-                std::cout << "\n";
+                cantidad = vista.pedirNumero("¿Cuántos jugadores van a participar? (1-7): ");
+                vista.mostrarLinea("");
 
                 if (std::cin.fail() || cantidad < 1 || cantidad > 7) {
                     std::cin.clear();
@@ -28,22 +29,21 @@ void Juego::iniciarJuego() {
         //Pedir los nombres de los jugadores
         for (int i = 0; i < cantidad; ++i) {
             std::string nombre;
-            std::cout << "Nombre del jugador " << (i+1) << ": ";
-            std::cin >> nombre;
+            nombre = vista.pedirEntrada("Nombre del jugador " + std::to_string(i + 1) + ": ");
             jugadores.emplace_back(nombre, 1000); // saldo inicial
         }
     
         
         bool continuarPartida = true;
         while(continuarPartida){
-            std::cout << "\n";
+            vista.mostrarLinea("");
             for (Jugador& j : jugadores) {
                 double monto;
                 while (true) {
                     try {
-                        std::cout << j.getNombre() << ", tu saldo es de $" 
-                                << j.getSaldo() << ". Ingresa tu apuesta: ";
-                        std::cin >> monto;
+                        std::ostringstream oss;
+                        oss << j.getNombre() << ", tu saldo es de $" << static_cast<int>(j.getSaldo()) << ". Ingresa tu apuesta: ";
+                        monto = vista.pedirNumero(oss.str());
 
                         if (std::cin.fail() || monto <= 0 || monto > j.getSaldo()) {
                             std::cin.clear();
@@ -66,7 +66,7 @@ void Juego::iniciarJuego() {
 
         continuarPartida = continuarJuego();
     }
-    std::cout << "\n---FIN DEL JUEGO---\n";
+    vista.mostrarLinea("\n---FIN DEL JUEGO---\n");
 }
 
 void Juego::repartirCartasIniciales() {
@@ -85,56 +85,57 @@ void Juego::repartirCartasIniciales() {
 
     //Se muestra la mano de cada jugador
     for (Jugador&j: jugadores){
-        std::cout << "\n" << j.getNombre() << " recibe: ";
+        vista.mostrarLinea("");
+        vista.mostrarMensaje(j.getNombre() + " recibe: ");
         j.mostrarMano();
-        std::cout << "Puntaje: " << j.obtenerPuntaje() << "\n";
+        vista.mostrarLinea("Puntaje: " + std::to_string(j.obtenerPuntaje()));
     }
 
-    std::cout << "\nCrupier muestra: ";
+    vista.mostrarLinea("\nCrupier muestra: ");
     crupier.mostrarMano(true);
 }
 
 void Juego::turnoJugadores(){
     for (Jugador& jugador : jugadores) {
-    std::cout << "\n==============================\n";
-    std::cout << "Turno de " << jugador.getNombre() << "\n";
-    std::cout << "------------------------------\n";
+    vista.mostrarLinea("\n==============================\n");
+    vista.mostrarLinea("Turno de " + jugador.getNombre());
+    vista.mostrarLinea("------------------------------");
     
     jugador.mostrarMano();
-    std::cout << "Puntaje: " << jugador.obtenerPuntaje() << "\n";
+    vista.mostrarLinea("Puntaje: " + std::to_string(jugador.obtenerPuntaje()));
 
         while (!jugador.getMano().determinarBust() && jugador.quiereOtraCarta()) {
            try {
                 jugador.pedirCarta(mazo);
-                std::cout << "\nTu mano ahora:\n";
+                vista.mostrarLinea("\nTu mano ahora:");
                 jugador.mostrarMano();
-                std::cout << "Puntaje: " << jugador.obtenerPuntaje() << "\n";
+                vista.mostrarLinea("Puntaje: " + std::to_string(jugador.obtenerPuntaje()));
             } catch (const std::exception& e) {
-                    std::cout << "Error al pedir carta: " << e.what() << std::endl;
+                    vista.mostrarLinea("Error al pedir carta: " + std::string(e.what()));
                     break;
                 }
         }
         if (jugador.getMano().determinarBust()) {
-            std::cout << "¡Te has pasado de 21!\n";
+            vista.mostrarLinea("¡Te has pasado de 21!");
         }
     }
 }
 
 void Juego::turnoCrupier(){
-    std::cout << "\n==============================\n";
-    std::cout << "Turno del crupier:\n";
-    std::cout << "------------------------------\n";
+    vista.mostrarLinea("\n==============================\n");
+    vista.mostrarLinea("Turno del crupier:");
+    vista.mostrarLinea("------------------------------");
     crupier.mostrarMano(false);
     
     while (crupier.obtenerPuntaje() < 17) {
-        std::cout << "El crupier pide carta...\n";
+        vista.mostrarLinea("El crupier pide carta...");
         crupier.getMano().agregarCarta(mazo.repartirCarta());
         crupier.mostrarMano(false);
-        std::cout << "Puntaje del crupier: " << crupier.obtenerPuntaje() << "\n";
+        vista.mostrarLinea("Puntaje del crupier: " + std::to_string(crupier.obtenerPuntaje()));
     }
     
     if (crupier.getMano().determinarBust()) {
-        std::cout << "¡El crupier se ha pasado de 21!\n";
+        vista.mostrarLinea("¡El crupier se ha pasado de 21!");
     }
 }
 
@@ -148,18 +149,18 @@ void Juego::evaluarResultados() {
         int puntajeJugador = jugador.obtenerPuntaje();
         bool jugadorBust = jugador.getMano().determinarBust();
 
-        std::cout << "Resultado para " << jugador.getNombre() << ": ";
+        vista.mostrarMensaje("Resultado para " + jugador.getNombre() + ": ");
         
         if (jugadorBust) {
-            std::cout << "Te has pasado de 21. Pierdes.\n";
+            vista.mostrarLinea("Te has pasado de 21. Pierdes.");
         } else if (crupierBust) {
-            std::cout << "El crupier se pasó de 21. ¡Ganas!\n";
+            vista.mostrarLinea("El crupier se pasó de 21. ¡Ganas!");
         } else if (puntajeJugador > puntajeCrupier) {
-            std::cout << "¡Ganas!\n";
+            vista.mostrarLinea("¡Ganas!");
         } else if (puntajeJugador < puntajeCrupier) {
-            std::cout << "Pierdes.\n";
+            vista.mostrarLinea("Pierdes.");
         } else {
-            std::cout << "Empate.\n";
+            vista.mostrarLinea("Empate.");
         }
         resolverPagos(jugador);
     }
@@ -171,21 +172,21 @@ void Juego::resolverPagos(Jugador& jugador) {
     int puntajeJugador = jugador.obtenerPuntaje();
     bool jugadorBust = jugador.getMano().determinarBust();
 
-    if (jugadorBust) {
-        std::cout << jugador.getNombre() << " pierde su apuesta de $" << jugador.getApuesta() << ". Saldo: $" << jugador.getSaldo() << "\n";
-    } else if (crupierBust || puntajeJugador > puntajeCrupier) {
-        double ganancia = jugador.getApuesta() * 2;
-        jugador.cobrar(ganancia);
-        std::cout << jugador.getNombre() << " gana $" << ganancia << ". Saldo: $" << jugador.getSaldo() << "\n";
-    } else if (puntajeJugador == puntajeCrupier) {
-        jugador.devolverApuesta();
-        std::cout << jugador.getNombre() << " empata y recupera su apuesta. Saldo: $" << jugador.getSaldo() <<  "\n";
-    } else {
-        std::cout << jugador.getNombre() << " pierde su apuesta de $" << jugador.getApuesta() << ". Saldo: $" << jugador.getSaldo() << ".\n";
-    }
-    std::cout << "\n";
-    // Reinicia la apuesta para la siguiente ronda
-    jugador.reiniciarApuesta();
+   if (jugadorBust) {
+            vista.mostrarLinea(jugador.getNombre() + " pierde su apuesta de $" + std::to_string(static_cast<int>(jugador.getApuesta())) + ". Saldo: $" + std::to_string(static_cast<int>(jugador.getSaldo())));
+        } else if (crupierBust || puntajeJugador > puntajeCrupier) {
+            double ganancia = jugador.getApuesta() * 2;
+            jugador.cobrar(ganancia);
+            vista.mostrarLinea(jugador.getNombre() + " gana $" + std::to_string(static_cast<int>(ganancia)) + ". Saldo: $" + std::to_string(static_cast<int>(jugador.getSaldo())));
+        } else if (puntajeJugador == puntajeCrupier) {
+            jugador.devolverApuesta();
+            vista.mostrarLinea(jugador.getNombre() + " empata y recupera su apuesta. Saldo: $" + std::to_string(static_cast<int>(jugador.getSaldo())));
+        } else {
+            vista.mostrarLinea(jugador.getNombre() + " pierde su apuesta de $" + std::to_string(static_cast<int>(jugador.getApuesta())) + ". Saldo: $" + std::to_string(static_cast<int>(jugador.getSaldo())));
+        }
+            vista.mostrarLinea("");
+            // Reinicia la apuesta para la siguiente ronda
+            jugador.reiniciarApuesta();
 }
 
 bool Juego::continuarJuego(){
@@ -193,7 +194,7 @@ bool Juego::continuarJuego(){
     for (Jugador& jugador : jugadores) {
 
         if (jugador.getSaldo() <= 0) {
-            std::cout << jugador.getNombre() << " no tiene saldo suficiente para continuar.\n";
+            vista.mostrarLinea(jugador.getNombre() + " no tiene saldo suficiente para continuar.");
             continue;
         }
 
@@ -203,7 +204,7 @@ bool Juego::continuarJuego(){
     }
 
     if (jugadoresSiguienteRonda.empty()) {
-        std::cout << "No hay jugadores que deseen continuar.\n";
+        vista.mostrarLinea("No hay jugadores que deseen continuar.");
         return false;
     }
 

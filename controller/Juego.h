@@ -18,15 +18,17 @@
 #define JUEGO_H
 
 #include <vector>
-#include "model/Mazo.h"
-#include "model/Crupier.h"
-#include "model/Jugador.h"
+#include "../model/Mazo.h"
+#include "../model/Crupier.h"
+#include "../model/Jugador.h"
+#include "../view/VistaConsola.h"
 
 class Juego{
 private:
     Mazo mazo;
     std::vector<Jugador> jugadores;
     Crupier crupier;
+    VistaConsola vista;
 
 public:
     void iniciarJuego();
