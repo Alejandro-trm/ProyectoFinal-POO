@@ -26,27 +26,10 @@ void Crupier::mostrarMano(bool parcial) {
     mano.mostrarMano(parcial);
 }
 
-void Crupier::mostrarParcial(){
-    mostrarMano(true);
-}
-
 bool Crupier::tieneBlackjack(){
     return mano.tieneBlackjack();
 }
 
 int Crupier::obtenerPuntaje() {
     return Persona::obtenerPuntaje();
-}
-
-int Crupier::calcularValorVisible(){
-    try{
-        if(mano.contarCartas()==0){
-            throw std::runtime_error("El crupier no tiene cartas por calcular");
-        }
-        return obtenerPuntaje();
-    }
-    catch(const std::exception& e){
-        std::cout << "Error al calcular el valor visible de la mano del Crupier: " << e.what() << "\n";
-        return 0;
-    }
 }

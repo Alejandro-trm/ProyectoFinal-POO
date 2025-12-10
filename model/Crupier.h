@@ -29,8 +29,6 @@ public:
     void repartirInicial(std::vector<Jugador>& jugadores, Mazo& m);
     int obtenerPuntaje();
     void mostrarMano(bool parcial);
-    void mostrarParcial();
-    int calcularValorVisible();
     bool tieneBlackjack();
 };
 

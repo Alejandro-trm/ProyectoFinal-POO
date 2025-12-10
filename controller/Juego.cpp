@@ -104,6 +104,11 @@ void Juego::turnoJugadores(){
     jugador.mostrarMano();
     vista.mostrarLinea("Puntaje: " + std::to_string(jugador.obtenerPuntaje()));
 
+    if (jugador.getMano().tieneBlackjack()) {
+            vista.mostrarLinea(jugador.getNombre() + " tiene BLACKJACK!");
+            continue;
+    }
+
         while (!jugador.getMano().determinarBust() && jugador.quiereOtraCarta()) {
            try {
                 jugador.pedirCarta(mazo);
@@ -122,7 +127,7 @@ void Juego::turnoJugadores(){
 }
 
 void Juego::turnoCrupier(){
-    vista.mostrarLinea("\n==============================\n");
+    vista.mostrarLinea("==============================");
     vista.mostrarLinea("Turno del crupier:");
     vista.mostrarLinea("------------------------------");
     crupier.mostrarMano(false);
@@ -142,51 +147,81 @@ void Juego::turnoCrupier(){
 void Juego::evaluarResultados() {
     int puntajeCrupier = crupier.obtenerPuntaje();
     bool crupierBust = crupier.getMano().determinarBust();
+    bool crupierBlackjack = crupier.tieneBlackjack();
 
     std::cout << "\n";
     
     for (Jugador& jugador : jugadores) {
         int puntajeJugador = jugador.obtenerPuntaje();
         bool jugadorBust = jugador.getMano().determinarBust();
+        bool jugadorBlackjack = jugador.getMano().tieneBlackjack();
 
         vista.mostrarMensaje("Resultado para " + jugador.getNombre() + ": ");
-        
-        if (jugadorBust) {
-            vista.mostrarLinea("Te has pasado de 21. Pierdes.");
-        } else if (crupierBust) {
-            vista.mostrarLinea("El crupier se pasó de 21. ¡Ganas!");
-        } else if (puntajeJugador > puntajeCrupier) {
-            vista.mostrarLinea("¡Ganas!");
-        } else if (puntajeJugador < puntajeCrupier) {
-            vista.mostrarLinea("Pierdes.");
-        } else {
-            vista.mostrarLinea("Empate.");
+
+        std::string resultado;
+
+        if (jugadorBlackjack && !crupierBlackjack) {
+            vista.mostrarLinea("Tienes Blackjack ¡Ganas!");
+            resultado = "BLACKJACK_JUGADOR";
         }
-        resolverPagos(jugador);
+        else if (!jugadorBlackjack && crupierBlackjack) {
+            vista.mostrarLinea("El crupier tiene Blackjack. Pierdes.");
+            resultado = "BLACKJACK_CRUPIER";
+        }
+        else if (jugadorBlackjack && crupierBlackjack) {
+            vista.mostrarLinea("El jugador y el Crupier tienen Blackjack. Empate.");
+            resultado = "EMPATE_BLACKJACK";
+        }
+        else if (jugadorBust) {
+            vista.mostrarLinea("Te pasaste de 21. Pierdes.");
+            resultado = "BUST_JUGADOR";
+        }
+        else if (crupierBust) {
+            vista.mostrarLinea("El crupier se pasó de 21. ¡Ganas!");
+            resultado = "GANA";
+        }
+        else if (puntajeJugador > puntajeCrupier) {
+            vista.mostrarLinea("¡Ganas!");
+            resultado = "GANA";
+        }
+        else if (puntajeJugador < puntajeCrupier) {
+            vista.mostrarLinea("Pierdes.");
+            resultado = "PIERDE";
+        }
+        else {
+            vista.mostrarLinea("Empate.");
+            resultado = "EMPATE";
+        }
+        resolverPagos(jugador, resultado);
     }
 }
 
-void Juego::resolverPagos(Jugador& jugador) {
-    int puntajeCrupier = crupier.obtenerPuntaje();
-    bool crupierBust = crupier.getMano().determinarBust();
-    int puntajeJugador = jugador.obtenerPuntaje();
-    bool jugadorBust = jugador.getMano().determinarBust();
+void Juego::resolverPagos(Jugador& jugador, const std::string& resultado) {
+    double apuesta = jugador.getApuesta();
 
-   if (jugadorBust) {
-            vista.mostrarLinea(jugador.getNombre() + " pierde su apuesta de $" + std::to_string(static_cast<int>(jugador.getApuesta())) + ". Saldo: $" + std::to_string(static_cast<int>(jugador.getSaldo())));
-        } else if (crupierBust || puntajeJugador > puntajeCrupier) {
-            double ganancia = jugador.getApuesta() * 2;
-            jugador.cobrar(ganancia);
-            vista.mostrarLinea(jugador.getNombre() + " gana $" + std::to_string(static_cast<int>(ganancia)) + ". Saldo: $" + std::to_string(static_cast<int>(jugador.getSaldo())));
-        } else if (puntajeJugador == puntajeCrupier) {
-            jugador.devolverApuesta();
-            vista.mostrarLinea(jugador.getNombre() + " empata y recupera su apuesta. Saldo: $" + std::to_string(static_cast<int>(jugador.getSaldo())));
-        } else {
-            vista.mostrarLinea(jugador.getNombre() + " pierde su apuesta de $" + std::to_string(static_cast<int>(jugador.getApuesta())) + ". Saldo: $" + std::to_string(static_cast<int>(jugador.getSaldo())));
-        }
-            vista.mostrarLinea("");
-            // Reinicia la apuesta para la siguiente ronda
-            jugador.reiniciarApuesta();
+    if (resultado == "BLACKJACK_JUGADOR") {
+        double ganancia = apuesta * 2.5;
+        jugador.cobrar(ganancia);
+        vista.mostrarLinea(jugador.getNombre() + " ganas $" + std::to_string(static_cast<int>(ganancia)) +
+                           ". Saldo: $" + std::to_string(static_cast<int>(jugador.getSaldo())));
+    }
+    else if (resultado == "GANA") {
+        double ganancia = apuesta * 2;
+        jugador.cobrar(ganancia);
+        vista.mostrarLinea(jugador.getNombre() + " ganas $" + std::to_string(static_cast<int>(ganancia)) +
+                           ". Saldo: $" + std::to_string(static_cast<int>(jugador.getSaldo())));
+    }
+    else if (resultado == "EMPATE_BLACKJACK" || resultado == "EMPATE") {
+        jugador.devolverApuesta();
+        vista.mostrarLinea(jugador.getNombre() + " recuperas tu apuesta. Saldo: $" +
+                           std::to_string(static_cast<int>(jugador.getSaldo())));
+    }
+    else if (resultado == "BUST_JUGADOR" || resultado == "PIERDE" || resultado == "BLACKJACK_CRUPIER") {
+        vista.mostrarLinea(jugador.getNombre() + " pierdes tu apuesta. " +
+                           "Saldo: $" + std::to_string(static_cast<int>(jugador.getSaldo())));
+    }
+    vista.mostrarLinea("");
+    jugador.reiniciarApuesta();
 }
 
 bool Juego::continuarJuego(){
@@ -194,10 +229,9 @@ bool Juego::continuarJuego(){
     for (Jugador& jugador : jugadores) {
 
         if (jugador.getSaldo() <= 0) {
-            vista.mostrarLinea(jugador.getNombre() + " no tiene saldo suficiente para continuar.");
+            vista.mostrarLinea(jugador.getNombre() + " no tienes saldo suficiente para continuar.");
             continue;
         }
-
         if (jugador.quiereNuevoJuego()) {
             jugadoresSiguienteRonda.push_back(jugador);
         }

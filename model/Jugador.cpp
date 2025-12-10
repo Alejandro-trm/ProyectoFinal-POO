@@ -7,16 +7,34 @@ Jugador::Jugador(const std::string& nombre, double saldoInicial)
 
 bool Jugador::quiereOtraCarta() {
     char opcion;
-    std::cout << "¿Deseas otra carta? (s/n): ";
-    std::cin >> opcion;
-    return (opcion == 's' || opcion == 'S');
+    while (true) {
+        std::cout << "¿Deseas otra carta? (s/n): ";
+        std::cin >> opcion;
+
+        if (opcion == 's' || opcion == 'S') {
+            return true;
+        }
+        if (opcion == 'n' || opcion == 'N') {
+            return false;
+        }
+        std::cout << "Opción inválida. Por favor responde 'S' o 'N'.\n";
+    }
 }
 
 bool Jugador::quiereNuevoJuego() {
     char opcion;
-    std::cout << nombre << ", ¿Deseas iniciar un nuevo juego? (s/n): ";
-    std::cin >> opcion;
-    return (opcion == 's' || opcion == 'S');
+    while (true) {
+        std::cout << nombre << ", ¿Deseas iniciar un nuevo juego? (s/n): ";
+        std::cin >> opcion;
+
+        if (opcion == 's' || opcion == 'S') {
+            return true;
+        }
+        if (opcion == 'n' || opcion == 'N') {
+            return false;
+        }
+        std::cout << "Opción inválida. Por favor responde 'S' o 'N'.\n";
+    }
 }
 
 void Jugador::apostar(double monto) {

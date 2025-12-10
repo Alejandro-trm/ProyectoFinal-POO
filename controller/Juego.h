@@ -36,7 +36,7 @@ public:
     void turnoJugadores();
     void turnoCrupier();
     void evaluarResultados();
-    void resolverPagos(Jugador& jugador);
+    void resolverPagos(Jugador& jugador, const std::string& resultado);
     bool continuarJuego();
 };
 
