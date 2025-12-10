@@ -6,7 +6,7 @@
 #include <iomanip>
 
 void Juego::iniciarJuego() {
-    vista.mostrarLinea("\n¡Es momento de apostar!\n");
+    vista.mostrarLinea("¡Es momento de apostar!\n");
 
         // Preguntar la cantidad de jugadores
         int cantidad = 0;
@@ -48,7 +48,7 @@ void Juego::iniciarJuego() {
                         if (std::cin.fail() || monto <= 0 || monto > j.getSaldo()) {
                             std::cin.clear();
                             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                            throw std::invalid_argument("Apuesta inválida. Debe ser un valor positivo y no mayor a tu saldo.");
+                            throw std::invalid_argument("Apuesta inválida. Debe ser un valor positivo y no mayor a tu saldo.\n");
                         }
                         j.apostar(monto);
                         break;
@@ -97,7 +97,7 @@ void Juego::repartirCartasIniciales() {
 
 void Juego::turnoJugadores(){
     for (Jugador& jugador : jugadores) {
-    vista.mostrarLinea("\n==============================\n");
+    vista.mostrarLinea("==============================");
     vista.mostrarLinea("Turno de " + jugador.getNombre());
     vista.mostrarLinea("------------------------------");
     
